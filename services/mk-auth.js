@@ -37,7 +37,7 @@ module.exports = {
     },
 
     async updateChamados(){
-        let listChamados = await chamados.find({status:'aberto'});
+        let listChamados = await chamados.find({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
         listChamados.forEach(item=>{
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}`).then(sucDetail=>{
@@ -60,11 +60,11 @@ module.exports = {
     },
 
     async totalChamadosAbertos(){
-        return await chamados.count({status:'aberto'});
+        return await chamados.countDocuments({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
     },
 
     async listChamadosAbertos(){
-        return await chamados.find({status:'aberto'});
+        return await chamados.find({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
     },
 
     async finishChamado(chamado){

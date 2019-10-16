@@ -33,7 +33,16 @@ bot.onText(/\/chamados/, (msg) => {
 bot.onText(/\/detalhe/, (msg) => {
     let userAllow = USERS.find(item=> item == msg.chat.id)
     if(userAllow){
-        bot.sendMessage(msg.chat.id, `Ainda em implementação....`)
+        chamados.listChamadosAbertos().then(suc=>{
+            let message = "Chamados abertos:\n"
+            suc.forEach(item=>{
+                message += item.chamado+"\n"
+            })
+            message += "so estes";
+            bot.sendMessage(msg.chat.id, message)    
+        },error=>{
+            bot.sendMessage(msg.chat.id, `Erro ao buscar o detalhamento`)    
+        })
     } else {
         bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
     }
