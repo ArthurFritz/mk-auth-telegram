@@ -4,6 +4,14 @@ const TOKEN = process.env.TOKEN_TELEGRAN
 const USERS = process.env.ALLOW_USERS.split(",")
 const bot = new TelegramBot( TOKEN, { polling: true } )
 
+const groupBy = key => array =>
+  array.reduce((objectsByKeyValue, obj) => {
+    const value = obj[key];
+    objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+    return objectsByKeyValue;
+  }, {});
+const groupAssunto = groupBy('assunto');
+
 bot.onText(/\/start/, (msg) => {
     let userAllow = USERS.find(item=> item == msg.chat.id)
     if(userAllow){
@@ -20,11 +28,7 @@ bot.onText(/\/code/, (msg) => {
 bot.onText(/\/chamados/, (msg) => {
     let userAllow = USERS.find(item=> item == msg.chat.id)
     if(userAllow){
-        chamados.totalChamadosAbertos().then(suc=>{
-            bot.sendMessage(msg.chat.id, `Há um total de ${suc} chamado(s) aberto(s)`)
-        },error=>{
-            bot.sendMessage(msg.chat.id, `Ocorreu um erro na consulta`)
-        })
+        sendChamadosAbertos(msg.chat.id);
     } else {
         bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
     }
@@ -35,8 +39,12 @@ bot.onText(/\/detalhe/, (msg) => {
     if(userAllow){
         chamados.listChamadosAbertos().then(suc=>{
             let message = "Chamados abertos:\n"
-            suc.forEach(item=>{
-                message += item.chamado+"\n"
+            let groupChamados = groupAssunto(suc);
+            Object.keys(groupChamados).forEach(assunto=>{
+                message += `- ${assunto}:\n`
+                groupChamados[assunto].forEach(itemCham=>{
+                    message += `${itemCham.login}\n`
+                })
             })
             message += "so estes";
             bot.sendMessage(msg.chat.id, message)    
@@ -69,13 +77,22 @@ function sendQuantityChamados(){
         if(suc && suc.chamado != lastChamado){
             lastChamado = suc.chamado;
             USERS.forEach(chatId=>{
-                chamados.totalChamadosAbertos().then(suc=>{
-                    bot.sendMessage(chatId, `Há um total de ${suc} chamado(s) aberto(s)`)
-                },error=>{
-                    bot.sendMessage(chatId, `Ocorreu um erro na consulta`)
-                })
+                sendChamadosAbertos(chatId);
             })
         }
+    })
+}
+
+function sendChamadosAbertos(chatId){
+    chamados.listChamadosAbertos().then(suc=>{
+        let message = `Há um total de ${suc.length} chamado(s) aberto(s):\n`
+        let groupChamados = groupAssunto(suc);
+        Object.keys(groupChamados).forEach(assunto=>{
+            message += `${groupChamados[assunto].length} - ${assunto}:\n`
+        })
+        bot.sendMessage(msg.chat.id, message)    
+    },error=>{
+        bot.sendMessage(chatId, `Ocorreu um erro na consulta`)
     })
 }
 
