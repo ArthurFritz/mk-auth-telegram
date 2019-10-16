@@ -90,7 +90,7 @@ function sendChamadosAbertos(chatId){
         Object.keys(groupChamados).forEach(assunto=>{
             message += `${groupChamados[assunto].length} - ${assunto}:\n`
         })
-        bot.sendMessage(msg.chat.id, message)    
+        bot.sendMessage(chatId, message)    
     },error=>{
         bot.sendMessage(chatId, `Ocorreu um erro na consulta`)
     })
