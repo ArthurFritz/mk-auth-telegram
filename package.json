@@ -4,6 +4,7 @@
   "description": "Bot que ulizada das api do mk-auth para interação com telegram",
   "main": "index.js",
   "scripts": {
+    "run": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
