@@ -88,7 +88,7 @@ function sendChamadosAbertos(chatId){
         let message = `Há um total de ${suc.length} chamado(s) aberto(s):\n`
         let groupChamados = groupAssunto(suc);
         Object.keys(groupChamados).forEach(assunto=>{
-            message += `${groupChamados[assunto].length} - ${assunto}:\n`
+            message += `${groupChamados[assunto].length} - ${assunto}\n`
         })
         bot.sendMessage(chatId, message)    
     },error=>{
