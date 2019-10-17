@@ -13,19 +13,22 @@ module.exports = {
                         if(!exists){
                             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                                 let detail = sucDetail.data;
-                                chamados.insertMany({
-                                    id: detail.id,
-                                    assunto: detail.assunto,
-                                    abertura: detail.abertura,
-                                    visita: detail.visita,
-                                    fechamento: detail.fechamento,
-                                    status: detail.status,
-                                    chamado: detail.chamado,
-                                    login: detail.login,
-                                    prioridade: detail.prioridade,
-                                    login_atend: detail.login_atend,
-                                    motivo_fechar: detail.motivo_fechar
-                                })
+                                axios.default.get(`${process.env.BASE_API_MK}cliente/list/${detail.login}?nocache=${new Date().getTime()}`).then(client=>{
+                                    chamados.insertMany({
+                                        id: detail.id,
+                                        assunto: detail.assunto,
+                                        abertura: detail.abertura,
+                                        visita: detail.visita,
+                                        fechamento: detail.fechamento,
+                                        status: detail.status,
+                                        chamado: detail.chamado,
+                                        login: detail.login,
+                                        cliAtivo: "s" == client.data.cli_ativado,
+                                        prioridade: detail.prioridade,
+                                        login_atend: detail.login_atend,
+                                        motivo_fechar: detail.motivo_fechar
+                                    })
+                                });
                             });
                         }
                     },error=>console.log(error))
@@ -35,37 +38,40 @@ module.exports = {
     },
 
     async updateChamados(){
-        let listChamados = await chamados.find({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        let listChamados = await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
         listChamados.forEach(item=>{
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                 let detail = sucDetail.data;
-                if(detail.status != 'aberto'){
-                    chamados.findOneAndUpdate({id:item.id},{
-                        assunto: detail.assunto,
-                        abertura: detail.abertura,
-                        visita: detail.visita,
-                        fechamento: detail.fechamento,
-                        status: detail.status,
-                        chamado: detail.chamado,
-                        login: detail.login,
-                        prioridade: detail.prioridade,
-                        login_atend: detail.login_atend,
-                        motivo_fechar: detail.motivo_fechar
-                    }).then(suc=>{
-                        console.log(`Atualizado chamado ${item.chamado}`)
-                    })
-                }
+                axios.default.get(`${process.env.BASE_API_MK}cliente/list/${detail.login}?nocache=${new Date().getTime()}`).then(client=>{
+                    if(detail.status != 'aberto' || "n" == client.data.cli_ativado){
+                        chamados.findOneAndUpdate({id:item.id},{
+                            assunto: detail.assunto,
+                            abertura: detail.abertura,
+                            visita: detail.visita,
+                            fechamento: detail.fechamento,
+                            status: detail.status,
+                            chamado: detail.chamado,
+                            login: detail.login,
+                            prioridade: detail.prioridade,
+                            login_atend: detail.login_atend,
+                            motivo_fechar: detail.motivo_fechar,
+                            cliAtivo : "s" == client.data.cli_ativado,
+                        }).then(suc=>{
+                            console.log(`Atualizado chamado ${item.chamado}`)
+                        })
+                    }
+                });
             });
         })
     },
 
     async totalChamadosAbertos(){
-        return await chamados.countDocuments({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        return await chamados.countDocuments({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
     },
 
     async listChamadosAbertos(){
-        return await chamados.find({status:'aberto', "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
     },
 
     async finishChamado(chamado){
