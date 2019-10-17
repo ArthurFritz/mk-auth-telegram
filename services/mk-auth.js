@@ -44,7 +44,7 @@ module.exports = {
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                 let detail = sucDetail.data;
                 axios.default.get(`${process.env.BASE_API_MK}cliente/list/${detail.login}?nocache=${new Date().getTime()}`).then(client=>{
-                    //if(detail.status != 'aberto' || "n" == client.data.cli_ativado){
+                   // if(detail.status != 'aberto' || "n" == client.data.cli_ativado){
                         chamados.findOneAndUpdate({id:item.id},{
                             assunto: detail.assunto,
                             abertura: detail.abertura,
@@ -58,7 +58,7 @@ module.exports = {
                             motivo_fechar: detail.motivo_fechar,
                             cliAtivo : "s" == client.data.cli_ativado,
                         }).then(suc=>{
-                            console.log(`Atualizado chamado ${item.chamado}`)
+                            console.log(`Atualizado chamado ${item.chamado} - ${detail.status} - ${client.data.cli_ativado}`)
                         })
                     //}
                 });
