@@ -7,7 +7,7 @@ module.exports = {
         const startDate = lastChamado.abertura;
         axios.default.get(`${process.env.BASE_API_MK}chamado/listAll?nocache=${new Date().getTime()}`).then(suc=>{
             suc.data.chamados.forEach(item=>{
-                if(item.abertura >= startDate){
+                if(item.abertura.getTime() >= startDate.getTime()){
                     chamados.findOne({"chamado" : item.chamado}).then(exists=>{
                         console.log(`Incluindo chamado caso não exista ${item.chamado} ${exists == null}`);
                         if(!exists){

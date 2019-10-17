@@ -72,14 +72,18 @@ bot.onText(/\/finalizar ([\w-]+)/, (msg, match) => {
 })
 
 let lastChamado = null;
+let totalChamadosAbertos = null;
 function sendQuantityChamados(){
-    chamados.lastRegister().then(suc=>{
-        if(suc && suc.chamado != lastChamado){
-            lastChamado = suc.chamado;
-            USERS.forEach(chatId=>{
-                sendChamadosAbertos(chatId);
-            })
-        }
+    chamados.totalChamadosAbertos().then(qtde=>{
+        chamados.lastRegister().then(suc=>{
+            if((suc && suc.chamado != lastChamado) || qtde && qtde != totalChamadosAbertos){
+                lastChamado = suc.chamado;
+                totalChamadosAbertos = qtde;
+                USERS.forEach(chatId=>{
+                    sendChamadosAbertos(chatId);
+                })
+            }
+        })
     })
 }
 
@@ -96,6 +100,8 @@ function sendChamadosAbertos(chatId){
     })
 }
 
+await chamados.updateBase();
+await chamados.updateChamados();
 sendQuantityChamados()
 setInterval(sendQuantityChamados, 60000)
 setInterval(chamados.updateChamados, 180000)
