@@ -38,7 +38,7 @@ module.exports = {
     },
 
     async updateChamados(){
-        let listChamados = await chamados.find({status:'aberto', $or:[{cliAtivo: { $exists: false } }, {cliAtivo:true}], "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        let listChamados = await chamados.find({status:'aberto',  "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
         listChamados.forEach(item=>{
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
