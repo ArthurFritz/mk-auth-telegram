@@ -100,8 +100,8 @@ function sendChamadosAbertos(chatId){
     })
 }
 
-await chamados.updateBase();
-await chamados.updateChamados();
+chamados.updateBase();
+chamados.updateChamados();
 sendQuantityChamados()
 setInterval(sendQuantityChamados, 60000)
 setInterval(chamados.updateChamados, 180000)
