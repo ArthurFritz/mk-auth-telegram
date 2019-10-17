@@ -56,9 +56,9 @@ module.exports = {
                             prioridade: detail.prioridade,
                             login_atend: detail.login_atend,
                             motivo_fechar: detail.motivo_fechar,
-                            cliAtivo : "s" == client.data.cli_ativado,
+                            cliAtivo : "n" != client.data.dados[0].cli_ativado,
                         }).then(suc=>{
-                            console.log(`Atualizado chamado ${item.chamado} - ${detail.status} - ${client.data.cli_ativado}`)
+                            console.log(`Atualizado chamado ${item.chamado} - ${detail.status} - ${client.data.dados[0].cli_ativado}`)
                         })
                    //}
                 });
