@@ -40,20 +40,22 @@ module.exports = {
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                 let detail = sucDetail.data;
-                chamados.findOneAndUpdate({id:item.id},{
-                    assunto: detail.assunto,
-                    abertura: detail.abertura,
-                    visita: detail.visita,
-                    fechamento: detail.fechamento,
-                    status: detail.status,
-                    chamado: detail.chamado,
-                    login: detail.login,
-                    prioridade: detail.prioridade,
-                    login_atend: detail.login_atend,
-                    motivo_fechar: detail.motivo_fechar
-                }).then(suc=>{
-                    console.log("updated")
-                })
+                if(detail.status != 'aberto'){
+                    chamados.findOneAndUpdate({id:item.id},{
+                        assunto: detail.assunto,
+                        abertura: detail.abertura,
+                        visita: detail.visita,
+                        fechamento: detail.fechamento,
+                        status: detail.status,
+                        chamado: detail.chamado,
+                        login: detail.login,
+                        prioridade: detail.prioridade,
+                        login_atend: detail.login_atend,
+                        motivo_fechar: detail.motivo_fechar
+                    }).then(suc=>{
+                        console.log(`Atualizado chamado ${item.chamado}`)
+                    })
+                }
             });
         })
     },
