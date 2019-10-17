@@ -4,12 +4,10 @@ const chamados = require('../models/chamados')
 module.exports = { 
         async updateBase(){
         const lastChamado = await chamados.findOne().sort("-abertura");
-        const startDate = lastChamado.chamado.substring(0,6);
+        const startDate = lastChamado.abertura;
         axios.default.get(`${process.env.BASE_API_MK}chamado/listAll?nocache=${new Date().getTime()}`).then(suc=>{
             suc.data.chamados.forEach(item=>{
-                let started = false;
-                if(started || item.chamado.indexOf(startDate) == 0){
-                    started = true;
+                if(item.abertura >= startDate){
                     chamados.findOne({"chamado" : item.chamado}).then(exists=>{
                         console.log(`Incluindo chamado caso não exista ${item.chamado} ${exists == null}`);
                         if(!exists){
@@ -42,8 +40,7 @@ module.exports = {
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                 let detail = sucDetail.data;
-                chamados.findOneAndUpdate({_id:item._id},{
-                    id: detail.id,
+                chamados.findOneAndUpdate({id:item.id},{
                     assunto: detail.assunto,
                     abertura: detail.abertura,
                     visita: detail.visita,
@@ -54,6 +51,8 @@ module.exports = {
                     prioridade: detail.prioridade,
                     login_atend: detail.login_atend,
                     motivo_fechar: detail.motivo_fechar
+                }).then(suc=>{
+                    console.log("updated")
                 })
             });
         })
