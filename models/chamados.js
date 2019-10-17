@@ -12,7 +12,7 @@ var ChamadosSchema = new mongoose.Schema({
     prioridade: String,
     login_atend: String,
     motivo_fechar: String,
-    cliAtivo:Boolean
+    cliAtivo:{ type: Boolean, default: true } 
 });
  
 module.exports = mongoose.model('Chamados', ChamadosSchema);
