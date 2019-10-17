@@ -23,7 +23,7 @@ module.exports = {
                                         status: detail.status,
                                         chamado: detail.chamado,
                                         login: detail.login,
-                                        cliAtivo: "s" == client.data.cli_ativado,
+                                        cliAtivo : "n" != client.data.dados[0].cli_ativado,
                                         prioridade: detail.prioridade,
                                         login_atend: detail.login_atend,
                                         motivo_fechar: detail.motivo_fechar
@@ -38,13 +38,13 @@ module.exports = {
     },
 
     async updateChamados(){
-        let listChamados = await chamados.find({status:'aberto',  "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        let listChamados = await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
         listChamados.forEach(item=>{
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
                 let detail = sucDetail.data;
                 axios.default.get(`${process.env.BASE_API_MK}cliente/list/${detail.login}?nocache=${new Date().getTime()}`).then(client=>{
-                   //if(detail.status != 'aberto' || "n" == client.data.cli_ativado){
+                   if(detail.status != 'aberto' || "n" == client.data.cli_ativado){
                         chamados.findOneAndUpdate({id:item.id},{
                             assunto: detail.assunto,
                             abertura: detail.abertura,
@@ -60,7 +60,7 @@ module.exports = {
                         }).then(suc=>{
                             console.log(`Atualizado chamado ${item.chamado} - ${detail.status} - ${client.data.dados[0].cli_ativado}`)
                         })
-                   //}
+                   }
                 });
             });
         })
