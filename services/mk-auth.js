@@ -45,7 +45,7 @@ module.exports = {
                 let detail = sucDetail.data;
                 axios.default.get(`${process.env.BASE_API_MK}cliente/list/${detail.login}?nocache=${new Date().getTime()}`).then(client=>{
                    if(detail.status != 'aberto' || "n" == client.data.dados[0].cli_ativado){
-                        chamados.findOneAndUpdate({id:item.id},{
+                        chamados.updateMany({id:item.id},{
                             assunto: detail.assunto,
                             abertura: detail.abertura,
                             visita: detail.visita,
