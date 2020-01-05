@@ -25,8 +25,7 @@ module.exports = {
             await dialog.dismiss();
         });
 
-        await page.click("#enviar");    
-        await page.goto(`https://api.telegram.org/bot737836314:AAGDfbE7ko00oNUW9PGG8XEjK5jocj_wvAg/sendMessage?chat_id=-1001340826303&text=${message}`);
+        await page.click("#enviar");
         await browser.close();
         return message;
     }
