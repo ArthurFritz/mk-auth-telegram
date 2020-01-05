@@ -1,5 +1,6 @@
 const TelegramBot = require( `node-telegram-bot-api` )
 const chamados = require ('./mk-auth')
+const close = require('./close');
 const TOKEN = process.env.TOKEN_TELEGRAN
 const USERS = process.env.ALLOW_USERS.split(",")
 const bot = new TelegramBot( TOKEN, { polling: true } )
@@ -12,12 +13,59 @@ const groupBy = key => array =>
   }, {});
 const groupAssunto = groupBy('assunto');
 
-bot.onText(/\/start/, (msg) => {
+const userAllow = (msg)=>{
     let userAllow = USERS.find(item=> item == msg.chat.id)
-    if(userAllow){
-        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, bem vindo!!`)
-    } else {
-        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
+    if(!userAllow){
+        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`);  
+    }
+    return userAllow;
+}
+
+bot.onText(/\/start/, (msg) => {
+    if(userAllow(msg)){
+        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, bem vindo!!`);
+    }
+})
+
+bot.onText(/\/fechar/, (msg) => {
+    if(userAllow(msg)){
+        chamados.listChamadosAbertosOrderLogin().then(suc=>{
+            var line_keyboard = [];
+            suc.forEach(item=>{
+                line_keyboard.push([
+                    {
+                        text: `${item.login} - ${item.chamado}`,
+                        callback_data: item.chamado
+                    }
+                ]);
+            });
+            bot.sendMessage(msg.chat.id, "Qual chamado deseja fechar?", {
+                "reply_markup": {
+                "inline_keyboard": line_keyboard
+            }});
+        });
+    }
+});
+
+bot.on("callback_query", (callbackQuery) => {
+    const message = callbackQuery.message;
+    if(message.text == 'Qual chamado deseja fechar?' ){
+        bot.sendMessage(message.chat.id, `Qual a mensagem para o fechamento do chamado ${callbackQuery.data} ?`,{
+            "reply_markup": {
+                "force_reply": true,
+                "selective": true
+        }}).then(sended=>{
+            bot.onReplyToMessage(sended.chat.id, sended.message_id, callback => {
+                console.log(`Fechando o chamado ${callbackQuery.data} pelo motivo ${callback.text}`);
+                try{
+                close.closeChamado(callbackQuery.data, callback.text).then(suc=>{
+                    bot.sendMessage(sended.chat.id, suc);
+                });
+                } catch(ex){
+                    console.log(ex);
+                }
+            })
+        });
     }
 })
 
@@ -26,17 +74,13 @@ bot.onText(/\/code/, (msg) => {
 })
 
 bot.onText(/\/chamados/, (msg) => {
-    let userAllow = USERS.find(item=> item == msg.chat.id)
-    if(userAllow){
+    if(userAllow(msg)){
         sendChamadosAbertos(msg.chat.id);
-    } else {
-        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
     }
 })
 
 bot.onText(/\/detalhe/, (msg) => {
-    let userAllow = USERS.find(item=> item == msg.chat.id)
-    if(userAllow){
+    if(userAllow(msg)){
         chamados.listChamadosAbertos().then(suc=>{
             let message = "Chamados abertos:\n"
             let groupChamados = groupAssunto(suc);
@@ -51,23 +95,17 @@ bot.onText(/\/detalhe/, (msg) => {
         },error=>{
             bot.sendMessage(msg.chat.id, `Erro ao buscar o detalhamento`)    
         })
-    } else {
-        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
     }
 })
 
 bot.onText(/\/finalizar ([\w-]+)/, (msg, match) => {
     console.log(match[1])
-    let userAllow = USERS.find(item=> item == msg.chat.id)
-    if(userAllow){
+    if(userAllow(msg)){
         chamados.finishChamado(match[1]).then(suc=>{
             bot.sendMessage(msg.chat.id, `Feita a finalização manual do chamado ${match[1]}`)
         },error=>{
             bot.sendMessage(msg.chat.id, `Ocorreu um erro ao tentar finalizar manualmente o chamado ${match[1]}`)
-        })
-        
-    } else {
-        bot.sendMessage(msg.chat.id, `Olá ${msg.from.first_name}, infelizmente você não é usuário autorizado, caso necessite interações favor entrar em contato com a NgTelecom`)
+        })       
     }
 })
 
