@@ -74,6 +74,10 @@ module.exports = {
         return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
     },
 
+    async listChamadosAbertosOrderLogin(){
+        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}}).sort( {login : 1});
+    },
+
     async finishChamado(chamado){
         return await chamados.findOneAndUpdate({chamado},{status: 'fechado'})
     },

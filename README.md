@@ -14,10 +14,15 @@ This parameters in the project used enviorioments:
 
 `URL_MONGO` - Address your mongoDB
 
-`BASE_API_MK` - Addres server MK-AUTH for example `http://api:myToken@serverAddress/api/`
+`BASE_API_MK` - Addres server(api) MK-AUTH for example `http://api:myToken@serverAddress/api/`
+
+`BASE_URL_MK`- Addres server(admin) MK-AUTH for example `http://serveraddress/admin/`
+
+`LOGIN_MK`- Login of the bot user in the mk-auth for example `telegranbot`
+
+`PASS_MK` - Password of the bot user in the mk-auth for example `pass123`
 
 `ALLOW_USERS` - Code users allow in the bot, separate users `CODE,CODE` don't use spaces :)
-
 
 ### Commands telegram
 `/code` - Request code user to allow
@@ -28,6 +33,7 @@ This parameters in the project used enviorioments:
 
 `/finalizar` - Close called support in the bot
 
+`/fechar` - Close called support in the MK-AUTH
 
 ### Routines
 `1min` - Verify updates in the bot, case has update send message to `ALLOW_USERS`
