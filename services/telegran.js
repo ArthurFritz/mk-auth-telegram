@@ -3,9 +3,7 @@ const chamados = require ('./mk-auth')
 const close = require('./close');
 const TOKEN = process.env.TOKEN_TELEGRAN
 const USERS = process.env.ALLOW_USERS.split(",")
-const bot = new TelegramBot( TOKEN, { polling:  {
-    interval: 1000
- } } )
+const bot = new TelegramBot( TOKEN, { polling: true } )
 
 const groupBy = key => array =>
   array.reduce((objectsByKeyValue, obj) => {
