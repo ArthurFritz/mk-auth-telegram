@@ -38,7 +38,7 @@ module.exports = {
     },
 
     async updateChamados(){
-        let listChamados = await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        let listChamados = await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2021, 1, 1)}});
         listChamados.forEach(item=>{
             console.log(`Verificando atualização ${item.chamado}`)
             axios.default.get(`${process.env.BASE_API_MK}chamado/list/${item.chamado}?nocache=${new Date().getTime()}`).then(sucDetail=>{
@@ -67,15 +67,15 @@ module.exports = {
     },
 
     async totalChamadosAbertos(){
-        return await chamados.countDocuments({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        return await chamados.countDocuments({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2021, 1, 1)}});
     },
 
     async listChamadosAbertos(){
-        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}});
+        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2021, 1, 1)}});
     },
 
     async listChamadosAbertosOrderLogin(){
-        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2020, 1, 1)}}).sort( {login : 1});
+        return await chamados.find({status:'aberto', cliAtivo:true, "abertura": {"$gte": new Date(2019, 1, 1), "$lt": new Date(2021, 1, 1)}}).sort( {login : 1});
     },
 
     async finishChamado(chamado){
